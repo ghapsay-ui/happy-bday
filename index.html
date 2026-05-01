@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elegant Birthday — Slow & Graceful</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      html,
+      body {
+        height: 100%;
+        background-color: #fcfbfd;
+      }
+
+      body {
+        font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+        /* Soft pearl/cream ambient gradient for the light theme */
+        background: radial-gradient(circle at 50% 0%, #ffffff 0%, #f4f0f6 60%, #e3dbe8 100%);
+        overflow: hidden;
+        overscroll-behavior: none;
+      }
+
+      .font-display {
+        font-family: "Fraunces", Georgia, serif;
+      }
+
+      /* Light Glassmorphic Card */
+      .card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.2) 100%);
+        backdrop-filter: blur(40px) saturate(1.2);
+        -webkit-backdrop-filter: blur(40px) saturate(1.2);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 
+          0 30px 60px rgba(0, 0, 0, 0.08), 
+          inset 0 1px 0 rgba(255, 255, 255, 1);
+        transition: transform 0.15s ease-out;
+        will-change: transform;
+        transform-style: preserve-3d;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen text-gray-800 antialiased selection:bg-pink-200/60 selection:text-gray-900 relative">
+    
+    <!-- Balloons Layer (Behind Card) -->
+    <div id="balloons" class="fixed inset-0 z-0 pointer-events-auto"></div>
+
+    <!-- Main Content -->
+    <main class="relative z-10 min-h-screen flex items-center justify-center px-4">
+      
+      <!-- 3D Perspective Wrapper -->
+      <div class="[perspective:1200px]">
+        
+        <div id="card" class="card relative w-[min(90vw,540px)] rounded-[32px] p-10 md:p-14 text-center">
+          
+          <!-- Subtitle -->
+          <div class="uppercase tracking-[0.25em] text-[10px] text-gray-400 font-semibold mb-3 mt-2">
+            Make a wish
+          </div>
+          
+          <div class="flex items-center justify-center gap-2 text-xs text-gray-500 mb-8">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
+            <span>slow &bull; elegant &bull; alive</span>
+          </div>
+
+          <!-- Title -->
+          <h1 class="font-display text-5xl md:text-[5.5rem] font-normal tracking-tight mb-6 leading-[1.05] text-gray-800">
+            Happy<br />Birthday
+          </h1>
+
+          <!-- Body Text -->
+          <p class="text-[13px] md:text-[15px] text-gray-600 leading-relaxed max-w-sm mx-auto mb-10">
+            May your year unfold gently — with quiet wonder, soft light, and
+            moments that rise like warm air. Take your time. It's all for you.
+          </p>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap items-center justify-center gap-3 mb-8">
+            <button id="popBtn" class="px-6 py-2.5 rounded-full bg-white/50 border border-white/80 hover:bg-white/80 shadow-sm backdrop-blur transition-all text-sm font-medium text-gray-700">
+              Pop one
+            </button>
+            <button id="releaseBtn" class="px-6 py-2.5 rounded-full bg-gray-800 text-white hover:bg-gray-900 shadow-lg shadow-gray-800/20 transition-all text-sm font-medium">
+              Release balloons
+            </button>
+          </div>
+
+          <!-- Footer Tip -->
+          <div class="text-[11px] text-gray-400 mb-2">
+            Tip: click balloons &bull; move cursor for subtle 3D tilt
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Floating Bottom Right Button -->
+    <button class="fixed bottom-6 right-6 px-7 py-2.5 rounded-full bg-white/60 border border-white hover:bg-white shadow-lg shadow-black/5 backdrop-blur-md transition-all text-sm font-medium text-gray-700 z-50">
+      Open
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+      // 1. Gentle Card Tilt Math
+      const card = document.getElementById("card");
+
+      function applyTilt(clientX, clientY) {
+        const x = (clientX / window.innerWidth - 0.5) * 2; 
+        const y = (clientY / window.innerHeight - 0.5) * 2; 
+        card.style.transform = `rotateX(${y * -12}deg) rotateY(${x * 12}deg)`;
+      }
+
+      document.addEventListener("mousemove", (e) => applyTilt(e.clientX, e.clientY));
+      document.addEventListener("touchmove", (e) => applyTilt(e.touches[0].clientX, e.touches[0].clientY));
+
+      document.addEventListener("mouseleave", () => card.style.transform = "rotateX(0deg) rotateY(0deg)");
+      document.addEventListener("touchend", () => card.style.transform = "rotateX(0deg) rotateY(0deg)");
+
+      // 2. Confetti Palette & Logic
+      const themeColors =["#ec4899", "#a855f7", "#3b82f6", "#10b981", "#f59e0b", "#ef4444"];
+
+      function triggerConfetti(x, y) {
+        confetti({
+          particleCount: 60,
+          spread: 80,
+          origin: { x: x / window.innerWidth, y: y / window.innerHeight },
+          colors: themeColors,
+          disableForReducedMotion: true
+        });
+      }
+
+      // 3. Realistic 3D Balloons Generation
+      const balloonsContainer = document.getElementById("balloons");
+
+      function createBalloonDOM() {
+        const wrapper = document.createElement("div");
+        wrapper.className = "absolute cursor-pointer transition-transform duration-300 hover:scale-105 z-0";
+        
+        const size = Math.random() * 40 + 50; 
+        const color = themeColors[Math.floor(Math.random() * themeColors.length)];
+        
+        // Main Balloon 
+        const balloon = document.createElement("div");
+        balloon.style.width = `${size}px`;
+        balloon.style.height = `${size * 1.25}px`;
+        balloon.style.borderRadius = "50% 50% 50% 50% / 40% 40% 60% 60%";
+        // 3D Gradient matching the prompt image
+        balloon.style.background = `radial-gradient(circle at 35% 35%, #ffffff 0%, ${color} 30%, #222222 120%)`;
+        balloon.style.boxShadow = "inset -5px -5px 15px rgba(0,0,0,0.15), 0 10px 20px rgba(0,0,0,0.05)";
+        
+        // Little Knot
+        const knot = document.createElement("div");
+        knot.style.position = "absolute";
+        knot.style.bottom = "-4px";
+        knot.style.left = "50%";
+        knot.style.transform = "translateX(-50%)";
+        knot.style.width = "0";
+        knot.style.height = "0";
+        knot.style.borderLeft = "5px solid transparent";
+        knot.style.borderRight = "5px solid transparent";
+        knot.style.borderBottom = `7px solid ${color}`;
+        
+        // String - Made slightly darker for light mode visibility
+        const string = document.createElement("div");
+        string.style.position = "absolute";
+        string.style.bottom = "-60px";
+        string.style.left = "50%";
+        string.style.width = "1px";
+        string.style.height = "60px";
+        string.style.background = "linear-gradient(to bottom, rgba(0,0,0,0.2), transparent)";
+        
+        wrapper.appendChild(balloon);
+        wrapper.appendChild(knot);
+        wrapper.appendChild(string);
+
+        wrapper.style.left = `${Math.random() * 90 + 5}vw`;
+
+        // Click to pop
+        wrapper.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const rect = wrapper.getBoundingClientRect();
+          triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          wrapper.remove();
+        });
+
+        return wrapper;
+      }
+
+      function spawnBalloon(startHeight, timeToTop) {
+        const b = createBalloonDOM();
+        balloonsContainer.appendChild(b);
+        b.style.bottom = `${startHeight}vh`;
+
+        setTimeout(() => {
+          b.style.transition = `bottom ${timeToTop}ms linear`;
+          b.style.bottom = "120vh";
+        }, 50);
+
+        setTimeout(() => { if(b.parentNode) b.remove() }, timeToTop);
+      }
+
+      // Initialize ambient background balloons
+      function initAmbientBalloons() {
+        for(let i = 0; i < 25; i++) {
+          const startHeight = Math.random() * 100; // Scatter initially across screen
+          const speed = Math.random() * 15000 + 20000; 
+          const ratio = (120 - startHeight) / 120;
+          spawnBalloon(startHeight, speed * ratio);
+        }
+      }
+
+      // 4. Button Logic
+      document.getElementById("releaseBtn").addEventListener("click", () => {
+        // Release a quick burst from the bottom
+        for(let i=0; i<8; i++) spawnBalloon(-20, Math.random() * 10000 + 15000);
+      });
+
+      document.getElementById("popBtn").addEventListener("click", () => {
+        // Find random balloon on screen and pop it
+        const allBalloons = balloonsContainer.children;
+        if (allBalloons.length > 0) {
+          const randomBalloon = allBalloons[Math.floor(Math.random() * allBalloons.length)];
+          const rect = randomBalloon.getBoundingClientRect();
+          triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          randomBalloon.remove();
+        }
+      });
+
+      // Start the environment
+      initAmbientBalloons();
+      // Continuously float new ones up from the very bottom
+      setInterval(() => spawnBalloon(-20, Math.random() * 15000 + 20000), 1200);
+
+    </script>
+  </body>
+</html>
